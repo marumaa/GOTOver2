@@ -1193,7 +1193,33 @@
         }
         
         // 言語ボタンを更新
-        function updateLanguageButtons(lang) {
-            languageButtons.forEach(btn => {
-                if (btn.dataset.lang === lang) {
-                    btn.classList.add('active'
+        // 言語ボタンを更新
+function updateLanguageButtons(lang) {
+    languageButtons.forEach(btn => {
+        if (btn.dataset.lang === lang) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+// 言語ボタンのイベントリスナーを設定
+languageButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const selectedLang = btn.dataset.lang;
+        currentLanguage = selectedLang;
+        updateLanguageButtons(selectedLang);
+        updateSuggestions(selectedLang);
+        
+        // 言語ごとのプレースホルダー
+        const placeholders = {
+            'en': 'Type a message...',
+            'ko': '메시지를 입력하세요...',
+            'ja': 'メッセージを入力...',
+            'zh': '输入消息...'
+        };
+        
+        userInput.placeholder = placeholders[selectedLang] || placeholders['en'];
+    });
+});
