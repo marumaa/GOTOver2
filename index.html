@@ -747,6 +747,62 @@ const suggestionsByLanguage = {
                 messageSuggestions.appendChild(chip);
             });
         }
+        // スタイルを追加
+const styleElement = document.createElement('style');
+styleElement.textContent = `
+    .suggestion-chip {
+        background-color: white;
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+        border-radius: 20px;
+        padding: 8px 15px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: var(--transition);
+        white-space: nowrap;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .suggestion-chip:hover {
+        background-color: var(--primary-light);
+        transform: translateY(-2px);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .suggestion-selected {
+        background-color: var(--primary-color) !important;
+        color: white !important;
+        transform: scale(0.95) !important;
+    }
+    
+    .message-suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .suggestion-chip {
+            background-color: #2d333b;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .suggestion-chip:hover {
+            background-color: #3d434b;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+    }
+`;
+
+// スタイル要素をheadに追加
+document.head.appendChild(styleElement);
 
         // 言語選択カード初期化
         languageCards.forEach(card => {
