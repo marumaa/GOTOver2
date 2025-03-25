@@ -1,732 +1,779 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOTO AI Support</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #00A599; /* GOTOのブランドカラー（緑系） */
-            --primary-light: #E6F7F6;
-            --secondary-color: #6c757d;
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
-            --success-color: #28a745;
-            --border-radius: 16px;
-            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fb;
-            color: #333;
-            line-height: 1.6;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 20px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        /* 言語選択画面 */
-        .language-select-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            text-align: center;
-        }
-        
-        .language-select-screen h1 {
-            font-size: 32px;
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-        
-        .language-select-screen p {
-            color: var(--secondary-color);
-            font-size: 16px;
-            margin-bottom: 30px;
-            max-width: 600px;
-        }
-        
-        .language-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            max-width: 500px;
-            width: 100%;
-        }
-        
-        .language-card {
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 20px;
-            cursor: pointer;
-            transition: var(--transition);
-            text-align: center;
-        }
-        
-        .language-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-        }
-        
-        .language-card .flag {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
-        
-        .language-card h3 {
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-        
-        .language-card p {
-            font-size: 14px;
-            color: var(--secondary-color);
-            margin: 0;
-        }
-        
-        /* チャット画面 */
-        .chat-screen {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-        }
-        
-        .chat-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #e1e4e8;
-            margin-bottom: 20px;
-        }
-        
-        .chat-header h1 {
-            font-size: 24px;
-            color: var(--primary-color);
-        }
-        
-        .language-selector {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .language-btn {
-            padding: 8px 12px;
-            background-color: white;
-            color: var(--dark-color);
-            border: 1px solid #e1e4e8;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: var(--transition);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-        
-        .language-btn:hover {
-            background-color: #f8f9fa;
-            transform: translateY(-2px);
-        }
-        
-        .language-btn.active {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-        
-        .chat-container {
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 20px;
-            flex: 1;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            scroll-behavior: smooth;
-        }
-        
-        .messages-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .message {
-            display: flex;
-            max-width: 85%;
-        }
-        
-        .message-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 10px;
-            flex-shrink: 0;
-        }
-        
-        .user-avatar {
-            background-color: var(--primary-light);
-            color: var(--primary-color);
-        }
-        
-        .bot-avatar {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .message-content {
-            padding: 12px 16px;
-            border-radius: 18px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            position: relative;
-            font-size: 15px;
-            line-height: 1.5;
-        }
-        
-        .user-message {
-            margin-left: auto;
-        }
-        
-        .user-message .message-content {
-            background-color: var(--primary-color);
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-        
-        .bot-message .message-content {
-            background-color: #f0f2f5;
-            color: var(--dark-color);
-            border-bottom-left-radius: 4px;
-        }
-        
-        .typing-indicator {
-            display: flex;
-            padding: 12px 16px;
-            background-color: #f0f2f5;
-            border-radius: 18px;
-            border-bottom-left-radius: 4px;
-            width: fit-content;
-        }
-        
-        .typing-indicator span {
-            height: 8px;
-            width: 8px;
-            background-color: #93a0b5;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
-            animation: typing 1.4s infinite both;
-        }
-        
-        .typing-indicator span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        
-        .typing-indicator span:nth-child(3) {
-            animation-delay: 0.4s;
-            margin-right: 0;
-        }
-        
-        @keyframes typing {
-            0% {
-                transform: translateY(0px);
-                background-color: #93a0b5;
-            }
-            28% {
-                transform: translateY(-7px);
-                background-color: #5d6c84;
-            }
-            44% {
-                transform: translateY(0px);
-                background-color: #93a0b5;
-            }
-        }
-        
-        .input-container {
-            display: flex;
-            gap: 10px;
-            position: relative;
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 15px;
-        }
-        
-        #user-input {
-            flex-grow: 1;
-            padding: 12px 15px;
-            border: 1px solid #e1e4e8;
-            border-radius: 24px;
-            font-size: 15px;
-            outline: none;
-            transition: var(--transition);
-        }
-        
-        #user-input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 165, 153, 0.2);
-        }
-        
-        .send-btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 2px 5px rgba(0, 165, 153, 0.3);
-        }
-        
-        .send-btn:hover {
-            background-color: #008c82;
-            transform: translateY(-2px);
-        }
-        
-        .send-btn:active {
-            transform: translateY(0);
-        }
-        
-        .send-btn i {
-            font-size: 18px;
-        }
-        
-        /* レスポンシブデザイン */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            
-            .language-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            
-            .chat-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-            
-            .language-selector {
-                width: 100%;
-                justify-content: space-between;
-            }
-            
-            .language-btn {
-                font-size: 12px;
-                padding: 6px 10px;
-            }
-            
-            .message {
-                max-width: 90%;
-            }
-        }
-        
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .container {
-                padding: 20px;
-            }
-        }
-        
-        /* ダークモードサポート */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #1a1d21;
-                color: #e1e4e8;
-            }
-            
-            .language-card, .chat-container, .input-container {
-                background-color: #252a31;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            }
-            
-            .chat-header {
-                border-bottom-color: #2d333b;
-            }
-            
-            .language-btn {
-                background-color: #252a31;
-                color: #e1e4e8;
-                border-color: #2d333b;
-            }
-            
-            .language-btn:hover {
-                background-color: #2d333b;
-            }
-            
-            .language-card p, .chat-header p {
-                color: #a0a8b1;
-            }
-            
-            .bot-message .message-content {
-                background-color: #2d333b;
-                color: #e1e4e8;
-            }
-            
-            .typing-indicator {
-                background-color: #2d333b;
-            }
-            
-            #user-input {
-                background-color: #2d333b;
-                color: #e1e4e8;
-                border-color: #3d434b;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GOTO AI Support</title>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --primary-color: #00A599; /* GOTOのブランドカラー（緑系） */
+      --primary-light: #E6F7F6;
+      --secondary-color: #6c757d;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --success-color: #28a745;
+      --border-radius: 16px;
+      --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fb;
+      color: #333;
+      line-height: 1.6;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 言語選択画面 */
+    .language-select-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+    }
+
+    .language-select-screen h1 {
+      font-size: 32px;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+    }
+
+    .language-select-screen p {
+      color: var(--secondary-color);
+      font-size: 16px;
+      margin-bottom: 30px;
+      max-width: 600px;
+    }
+
+    .language-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .language-card {
+      background-color: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 20px;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+    }
+
+    .language-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .language-card .flag {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .language-card h3 {
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+
+    .language-card p {
+      font-size: 14px;
+      color: var(--secondary-color);
+      margin: 0;
+    }
+
+    /* チャット画面 */
+    .chat-screen {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e1e4e8;
+      margin-bottom: 20px;
+    }
+
+    .chat-header h1 {
+      font-size: 24px;
+      color: var(--primary-color);
+    }
+
+    .language-selector {
+      display: flex;
+      gap: 10px;
+    }
+
+    .language-btn {
+      padding: 8px 12px;
+      background-color: white;
+      color: var(--dark-color);
+      border: 1px solid #e1e4e8;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: var(--transition);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .language-btn:hover {
+      background-color: #f8f9fa;
+      transform: translateY(-2px);
+    }
+
+    .language-btn.active {
+      background-color: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .chat-container {
+      background-color: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 20px;
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      scroll-behavior: smooth;
+    }
+
+    .messages-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .message {
+      display: flex;
+      max-width: 85%;
+    }
+
+    .message-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .user-avatar {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .bot-avatar {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .message-content {
+      padding: 12px 16px;
+      border-radius: 18px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      position: relative;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .user-message {
+      margin-left: auto;
+    }
+
+    .user-message .message-content {
+      background-color: var(--primary-color);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .bot-message .message-content {
+      background-color: #f0f2f5;
+      color: var(--dark-color);
+      border-bottom-left-radius: 4px;
+    }
+
+    .typing-indicator {
+      display: flex;
+      padding: 12px 16px;
+      background-color: #f0f2f5;
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+      width: fit-content;
+    }
+
+    .typing-indicator span {
+      height: 8px;
+      width: 8px;
+      background-color: #93a0b5;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 5px;
+      animation: typing 1.4s infinite both;
+    }
+
+    .typing-indicator span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-indicator span:nth-child(3) {
+      animation-delay: 0.4s;
+      margin-right: 0;
+    }
+
+    @keyframes typing {
+      0% {
+        transform: translateY(0px);
+        background-color: #93a0b5;
+      }
+      28% {
+        transform: translateY(-7px);
+        background-color: #5d6c84;
+      }
+      44% {
+        transform: translateY(0px);
+        background-color: #93a0b5;
+      }
+    }
+
+    .suggestions-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .suggestion-button {
+      padding: 8px 12px;
+      background-color: var(--primary-light);
+      border: 1px solid var(--primary-color);
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 14px;
+      transition: var(--transition);
+    }
+
+    .suggestion-button:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .input-container {
+      display: flex;
+      gap: 10px;
+      position: relative;
+      background-color: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 15px;
+    }
+
+    #user-input {
+      flex-grow: 1;
+      padding: 12px 15px;
+      border: 1px solid #e1e4e8;
+      border-radius: 24px;
+      font-size: 15px;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    #user-input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 165, 153, 0.2);
+    }
+
+    .send-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 2px 5px rgba(0, 165, 153, 0.3);
+    }
+
+    .send-btn:hover {
+      background-color: #008c82;
+      transform: translateY(-2px);
+    }
+
+    .send-btn:active {
+      transform: translateY(0);
+    }
+
+    .send-btn i {
+      font-size: 18px;
+    }
+
+    /* レスポンシブデザイン */
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+
+      .language-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .chat-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+
+      .language-selector {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .language-btn {
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+
+      .message {
+        max-width: 90%;
+      }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .container {
+        padding: 20px;
+      }
+    }
+
+    /* ダークモードサポート */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #1a1d21;
+        color: #e1e4e8;
+      }
+
+      .language-card,
+      .chat-container,
+      .input-container {
+        background-color: #252a31;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .chat-header {
+        border-bottom-color: #2d333b;
+      }
+
+      .language-btn {
+        background-color: #252a31;
+        color: #e1e4e8;
+        border-color: #2d333b;
+      }
+
+      .language-btn:hover {
+        background-color: #2d333b;
+      }
+
+      .language-card p,
+      .chat-header p {
+        color: #a0a8b1;
+      }
+
+      .bot-message .message-content {
+        background-color: #2d333b;
+        color: #e1e4e8;
+      }
+
+      .typing-indicator {
+        background-color: #2d333b;
+      }
+
+      #user-input {
+        background-color: #2d333b;
+        color: #e1e4e8;
+        border-color: #3d434b;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 言語選択画面 -->
-        <div class="language-select-screen" id="language-select-screen">
-            <h1>GOTO AI Support</h1>
-            <p>お好みの言語を選択して会話を始めましょう</p>
-            
-            <div class="language-grid">
-                <div class="language-card" data-lang="en">
-                    <div class="flag">🇺🇸</div>
-                    <h3>English</h3>
-                    <p>Start chatting in English</p>
-                </div>
-                
-                <div class="language-card" data-lang="ja">
-                    <div class="flag">🇯🇵</div>
-                    <h3>日本語</h3>
-                    <p>日本語でチャットを開始</p>
-                </div>
-                
-                <div class="language-card" data-lang="ko">
-                    <div class="flag">🇰🇷</div>
-                    <h3>한국어</h3>
-                    <p>한국어로 채팅 시작</p>
-                </div>
-                
-                <div class="language-card" data-lang="zh">
-                    <div class="flag">🇨🇳</div>
-                    <h3>中文</h3>
-                    <p>用中文开始聊天</p>
-                </div>
-            </div>
+  <div class="container">
+    <!-- 言語選択画面 -->
+    <div class="language-select-screen" id="language-select-screen">
+      <h1>GOTO AI Support</h1>
+      <p>お好みの言語を選択して会話を始めましょう</p>
+
+      <div class="language-grid">
+        <div class="language-card" data-lang="en">
+          <div class="flag">🇺🇸</div>
+          <h3>English</h3>
+          <p>Start chatting in English</p>
         </div>
-        
-        <!-- チャット画面 -->
-        <div class="chat-screen" id="chat-screen">
-            <div class="chat-header">
-                <h1>GOTO AI Support</h1>
-                
-                <div class="language-selector">
-                    <button class="language-btn" data-lang="en">English</button>
-                    <button class="language-btn" data-lang="ko">한국어</button>
-                    <button class="language-btn" data-lang="ja">日本語</button>
-                    <button class="language-btn" data-lang="zh">中文</button>
-                </div>
-            </div>
-            
-            <div class="chat-container" id="chat-container">
-                <div class="messages-container" id="messages-container">
-                    <!-- メッセージはここに追加されます -->
-                </div>
-            </div>
-            
-            <div class="input-container">
-                <input type="text" id="user-input" placeholder="メッセージを入力..." aria-label="メッセージを入力">
-                <button class="send-btn" id="send-button" aria-label="メッセージを送信">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
+
+        <div class="language-card" data-lang="ja">
+          <div class="flag">🇯🇵</div>
+          <h3>日本語</h3>
+          <p>日本語でチャットを開始</p>
         </div>
+
+        <div class="language-card" data-lang="ko">
+          <div class="flag">🇰🇷</div>
+          <h3>한국어</h3>
+          <p>한국어로 채팅 시작</p>
+        </div>
+
+        <div class="language-card" data-lang="zh">
+          <div class="flag">🇨🇳</div>
+          <h3>中文</h3>
+          <p>用中文开始聊天</p>
+        </div>
+      </div>
     </div>
 
-    <script>
-        // セッションIDを保存
-        let sessionId = null;
-        // 現在選択されている言語
-        let currentLanguage = 'ja'; // デフォルト値（初期選択画面からは上書きされます）
+    <!-- チャット画面 -->
+    <div class="chat-screen" id="chat-screen">
+      <div class="chat-header">
+        <h1>GOTO AI Support</h1>
 
-        // DOM要素
-        const languageSelectScreen = document.getElementById('language-select-screen');
-        const chatScreen = document.getElementById('chat-screen');
-        const chatContainer = document.getElementById('chat-container');
-        const messagesContainer = document.getElementById('messages-container');
-        const userInput = document.getElementById('user-input');
-        const sendButton = document.getElementById('send-button');
-        const languageButtons = document.querySelectorAll('.language-btn');
-        const languageCards = document.querySelectorAll('.language-card');
+        <div class="language-selector">
+          <button class="language-btn" data-lang="en">English</button>
+          <button class="language-btn" data-lang="ko">한국어</button>
+          <button class="language-btn" data-lang="ja">日本語</button>
+          <button class="language-btn" data-lang="zh">中文</button>
+        </div>
+      </div>
 
-        // 言語選択カード初期化
-        languageCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const selectedLang = card.dataset.lang;
-                // 言語を設定してチャット画面を表示
-                startChat(selectedLang);
-            });
+      <div class="chat-container" id="chat-container">
+        <div class="messages-container" id="messages-container">
+          <!-- メッセージはここに追加されます -->
+        </div>
+      </div>
+
+      <!-- サジェスト領域 -->
+      <div class="suggestions-container" id="suggestions-container">
+        <button class="suggestion-button">営業時間は？</button>
+        <button class="suggestion-button">パスワードのリセット方法は？</button>
+        <button class="suggestion-button">注文履歴はどこで確認できますか？</button>
+      </div>
+
+      <div class="input-container">
+        <input
+          type="text"
+          id="user-input"
+          placeholder="メッセージを入力..."
+          aria-label="メッセージを入力"
+        />
+        <button class="send-btn" id="send-button" aria-label="メッセージを送信">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // セッションIDを保存
+    let sessionId = null;
+    // 現在選択されている言語
+    let currentLanguage = 'ja'; // デフォルト値（初期選択画面からは上書きされます）
+
+    // DOM要素
+    const languageSelectScreen = document.getElementById('language-select-screen');
+    const chatScreen = document.getElementById('chat-screen');
+    const chatContainer = document.getElementById('chat-container');
+    const messagesContainer = document.getElementById('messages-container');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+    const languageButtons = document.querySelectorAll('.language-btn');
+    const languageCards = document.querySelectorAll('.language-card');
+
+    // 言語選択カード初期化
+    languageCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const selectedLang = card.dataset.lang;
+        // 言語を設定してチャット画面を表示
+        startChat(selectedLang);
+      });
+    });
+
+    // チャット開始処理
+    function startChat(lang) {
+      // 言語を設定
+      currentLanguage = lang;
+
+      // 言語ボタンを更新
+      updateLanguageButtons(lang);
+
+      // 表示切替
+      languageSelectScreen.style.display = 'none';
+      chatScreen.style.display = 'flex';
+
+      // 言語ごとのプレースホルダー
+      const placeholders = {
+        en: 'Type a message...',
+        ko: '메시지를 입력하세요...',
+        ja: 'メッセージを入力...',
+        zh: '输入消息...'
+      };
+
+      userInput.placeholder = placeholders[lang] || placeholders.en;
+
+      // ウェルカムメッセージ
+      const welcomeMessages = {
+        en: 'Welcome to GOTO AI Support. How can I help you today?',
+        ko: 'GOTO AI 지원에 오신 것을 환영합니다. 오늘 어떻게 도와드릴까요?',
+        ja: 'GOTO AIサポートへようこそ。本日はどのようにお手伝いできますか？',
+        zh: '欢迎使用GOTO AI支持。今天我能为您提供什么帮助？'
+      };
+
+      // ウェルカムメッセージを表示
+      addMessage(welcomeMessages[lang] || welcomeMessages.en, 'bot');
+
+      // 入力フィールドにフォーカス
+      userInput.focus();
+    }
+
+    // 言語ボタンを更新
+    function updateLanguageButtons(lang) {
+      languageButtons.forEach(btn => {
+        if (btn.dataset.lang === lang) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    // 言語ボタンの初期化
+    languageButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // アクティブなクラスを削除
+        languageButtons.forEach(btn => btn.classList.remove('active'));
+        // クリックされたボタンにアクティブクラスを追加
+        button.classList.add('active');
+        // 言語を設定
+        setLanguage(button.dataset.lang);
+      });
+    });
+
+    // 言語を設定する関数（チャット中の言語切り替え）
+    function setLanguage(lang) {
+      currentLanguage = lang;
+      const placeholders = {
+        en: 'Type a message...',
+        ko: '메시지를 입력하세요...',
+        ja: 'メッセージを入力...',
+        zh: '输入消息...'
+      };
+
+      userInput.placeholder = placeholders[lang] || placeholders.en;
+
+      // 言語切替メッセージをボットから送信したように表示
+      const languageNames = {
+        en: 'English',
+        ko: '한국어',
+        ja: '日本語',
+        zh: '中文'
+      };
+
+      const switchMessages = {
+        en: `Language switched to ${languageNames[lang]}`,
+        ko: `언어가 ${languageNames[lang]}(으)로 전환되었습니다`,
+        ja: `言語が${languageNames[lang]}に切り替わりました`,
+        zh: `语言已切换为${languageNames[lang]}`
+      };
+
+      addMessage(switchMessages[lang] || switchMessages.en, 'bot');
+    }
+
+    // メッセージをチャットに追加する関数
+    function addMessage(text, sender) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message');
+      messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+
+      if (sender === 'user') {
+        messageDiv.innerHTML = `<div class="message-content">${escapeHtml(text)}</div>`;
+      } else {
+        messageDiv.innerHTML = `
+          <div class="message-avatar bot-avatar">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div class="message-content">${text}</div>
+        `;
+      }
+
+      messagesContainer.appendChild(messageDiv);
+
+      // 自動スクロール
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // HTML特殊文字をエスケープする関数
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // 入力中表示を追加
+    function addTypingIndicator() {
+      const typing = document.createElement('div');
+      typing.classList.add('message', 'bot-message');
+      typing.id = 'typing-indicator';
+      typing.innerHTML = `
+        <div class="message-avatar bot-avatar">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="typing-indicator">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      `;
+      messagesContainer.appendChild(typing);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // 入力中表示を削除
+    function removeTypingIndicator() {
+      const typing = document.getElementById('typing-indicator');
+      if (typing) {
+        typing.remove();
+      }
+    }
+
+    // メッセージを送信する関数
+    async function sendMessage() {
+      const message = userInput.value.trim();
+
+      if (!message) return;
+
+      // ユーザーのメッセージを表示
+      addMessage(message, 'user');
+      userInput.value = '';
+
+      // 入力中表示
+      addTypingIndicator();
+
+      try {
+        // Netlify Function にリクエストを送信
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message,
+            language: currentLanguage,
+            sessionId
+          })
         });
 
-        // チャット開始処理
-        function startChat(lang) {
-            // 言語を設定
-            currentLanguage = lang;
-            
-            // 言語ボタンを更新
-            updateLanguageButtons(lang);
-            
-            // 表示切替
-            languageSelectScreen.style.display = 'none';
-            chatScreen.style.display = 'flex';
-            
-            // 言語ごとのプレースホルダー
-            const placeholders = {
-                'en': 'Type a message...',
-                'ko': '메시지를 입력하세요...',
-                'ja': 'メッセージを入力...',
-                'zh': '输入消息...'
-            };
-            
-            userInput.placeholder = placeholders[lang] || placeholders['en'];
-            
-            // ウェルカムメッセージ
-            const welcomeMessages = {
-                'en': 'Welcome to GOTO AI Support. How can I help you today?',
-                'ko': 'GOTO AI 지원에 오신 것을 환영합니다. 오늘 어떻게 도와드릴까요?',
-                'ja': 'GOTO AIサポートへようこそ。本日はどのようにお手伝いできますか？',
-                'zh': '欢迎使用GOTO AI支持。今天我能为您提供什么帮助？'
-            };
-            
-            // ウェルカムメッセージを表示
-            addMessage(welcomeMessages[lang] || welcomeMessages['en'], 'bot');
-            
-            // 入力フィールドにフォーカス
-            userInput.focus();
-        }
-        
-        // 言語ボタンを更新
-        function updateLanguageButtons(lang) {
-            languageButtons.forEach(btn => {
-                if (btn.dataset.lang === lang) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-        }
-        
-        // 言語ボタンの初期化
-        languageButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // アクティブなクラスを削除
-                languageButtons.forEach(btn => btn.classList.remove('active'));
-                // クリックされたボタンにアクティブクラスを追加
-                button.classList.add('active');
-                // 言語を設定
-                setLanguage(button.dataset.lang);
-            });
-        });
-
-        // 言語を設定する関数（チャット中の言語切り替え）
-        function setLanguage(lang) {
-            currentLanguage = lang;
-            const placeholders = {
-                'en': 'Type a message...',
-                'ko': '메시지를 입력하세요...',
-                'ja': 'メッセージを入力...',
-                'zh': '输入消息...'
-            };
-            
-            userInput.placeholder = placeholders[lang] || placeholders['en'];
-            
-            // 言語切替メッセージをボットから送信したように表示
-            const languageNames = {
-                'en': 'English',
-                'ko': '한국어',
-                'ja': '日本語',
-                'zh': '中文'
-            };
-            
-            const switchMessages = {
-                'en': `Language switched to ${languageNames[lang]}`,
-                'ko': `언어가 ${languageNames[lang]}(으)로 전환되었습니다`,
-                'ja': `言語が${languageNames[lang]}に切り替わりました`,
-                'zh': `语言已切换为${languageNames[lang]}`
-            };
-            
-            addMessage(switchMessages[lang] || switchMessages['en'], 'bot');
-        }
-
-        // メッセージをチャットに追加する関数
-        function addMessage(text, sender) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message');
-            messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
-            
-            if (sender === 'user') {
-                messageDiv.innerHTML = `
-                    <div class="message-content">${escapeHtml(text)}</div>
-                `;
-            } else {
-                messageDiv.innerHTML = `
-                    <div class="message-avatar bot-avatar">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div class="message-content">${text}</div>
-                `;
-            }
-            
-            messagesContainer.appendChild(messageDiv);
-            
-            // 自動スクロール
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        // HTML特殊文字をエスケープする関数
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // 入力中表示を追加
-        function addTypingIndicator() {
-            const typing = document.createElement('div');
-            typing.classList.add('message', 'bot-message');
-            typing.id = 'typing-indicator';
-            typing.innerHTML = `
-                <div class="message-avatar bot-avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="typing-indicator">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            `;
-            messagesContainer.appendChild(typing);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
+        const data = await response.json();
 
         // 入力中表示を削除
-        function removeTypingIndicator() {
-            const typing = document.getElementById('typing-indicator');
-            if (typing) {
-                typing.remove();
-            }
+        removeTypingIndicator();
+
+        if (data.error) {
+          const errorMessages = {
+            en: `Error: ${data.error}`,
+            ko: `오류: ${data.error}`,
+            ja: `エラー: ${data.error}`,
+            zh: `错误: ${data.error}`
+          };
+          addMessage(errorMessages[currentLanguage] || errorMessages.en, 'bot');
+        } else {
+          // ボットからの応答を表示
+          addMessage(data.response, 'bot');
+          // セッションIDを保存
+          if (data.sessionId) {
+            sessionId = data.sessionId;
+          }
         }
+      } catch (error) {
+        // 入力中表示を削除
+        removeTypingIndicator();
 
-        // メッセージを送信する関数
-        async function sendMessage() {
-            const message = userInput.value.trim();
-            
-            if (!message) return;
-            
-            // ユーザーのメッセージを表示
-            addMessage(message, 'user');
-            userInput.value = '';
-            
-            // 入力中表示
-            addTypingIndicator();
-            
-            try {
-                // Netlify Function にリクエストを送信
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message,
-                        language: currentLanguage,
-                        sessionId
-                    })
-                });
-                
-                const data = await response.json();
-                
-                // 入力中表示を削除
-                removeTypingIndicator();
-                
-                if (data.error) {
-                    const errorMessages = {
-                        'en': `Error: ${data.error}`,
-                        'ko': `오류: ${data.error}`,
-                        'ja': `エラー: ${data.error}`,
-                        'zh': `错误: ${data.error}`
-                    };
-                    addMessage(errorMessages[currentLanguage] || errorMessages['en'], 'bot');
-                } else {
-                    // ボットからの応答を表示
-                    addMessage(data.response, 'bot');
-                    // セッションIDを保存
-                    if (data.sessionId) {
-                        sessionId = data.sessionId;
-                    }
-                }
-            } catch (error) {
-                // 入力中表示を削除
-                removeTypingIndicator();
-                
-                const fallbackMessages = {
-                    'en': 'Sorry, something went wrong. Please try again.',
-                    'ko': '죄송합니다. 문제가 발생했습니다. 다시 시도해 주세요.',
-                    'ja': '申し訳ありません。問題が発生しました。もう一度お試しください。',
-                    'zh': '抱歉，出现了问题。请重试。'
-                };
-                
-                addMessage(fallbackMessages[currentLanguage] || fallbackMessages['en'], 'bot');
-                console.error('Error:', error);
-            }
-        }
+        const fallbackMessages = {
+          en: 'Sorry, something went wrong. Please try again.',
+          ko: '죄송합니다. 문제가 발생했습니다. 다시 시도해 주세요.',
+          ja: '申し訳ありません。問題が発生しました。もう一度お試しください。',
+          zh: '抱歉，出现了问题。请重试。'
+        };
 
-        // エンターキーでメッセージを送信
-        userInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
+        addMessage(fallbackMessages[currentLanguage] || fallbackMessages.en, 'bot');
+        console.error('Error:', error);
+      }
+    }
 
-        // 送信ボタンクリックでメッセージを送信
-        sendButton.addEventListener('click', sendMessage);
+    // エンターキーでメッセージを送信
+    userInput.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
 
-        // ブラウザ戻るボタンでの言語選択画面への戻り対応
-        window.addEventListener('popstate', function(event) {
-            if (chatScreen.style.display === 'flex') {
-                event.preventDefault();
-                chatScreen.style.display = 'none';
-                languageSelectScreen.style.display = 'flex';
-                history.pushState(null, document.title, window.location.href);
-            }
-        });
+    // 送信ボタンクリックでメッセージを送信
+    sendButton.addEventListener('click', sendMessage);
 
-        // ブラウザ履歴に現在の状態を追加
+    // サジェストボタンがクリックされたとき、テキストを入力欄に挿入する
+    const suggestionButtons = document.querySelectorAll('.suggestion-button');
+    suggestionButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        userInput.value = button.textContent;
+        userInput.focus();
+      });
+    });
+
+    // ブラウザ戻るボタンでの言語選択画面への戻り対応
+    window.addEventListener('popstate', function (event) {
+      if (chatScreen.style.display === 'flex') {
+        event.preventDefault();
+        chatScreen.style.display = 'none';
+        languageSelectScreen.style.display = 'flex';
         history.pushState(null, document.title, window.location.href);
-    </script>
+      }
+    });
+
+    // ブラウザ履歴に現在の状態を追加
+    history.pushState(null, document.title, window.location.href);
+  </script>
 </body>
 </html>
