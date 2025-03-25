@@ -652,315 +652,250 @@
     </div>
 
     <script>
-        // セッションIDを保存
-        let sessionId = null;
-        // 現在選択されている言語
-        let currentLanguage = 'ja'; // デフォルト値（初期選択画面からは上書きされます）
-        // 物件情報を保存
-        let propertyInfo = {
-            propertyId: '',
-            roomNumber: '',
-            issue: ''
-        };
+    // セッションIDを保存
+    let sessionId = null;
+    // 現在選択されている言語
+    let currentLanguage = 'ja'; // デフォルト値（初期選択画面からは上書きされます）
+    // 物件情報を保存
+    let propertyInfo = {
+        propertyId: '',
+        roomNumber: '',
+        issue: ''
+    };
 
-        // DOM要素
-        const languageSelectScreen = document.getElementById('language-select-screen');
-        const infoFormScreen = document.getElementById('info-form-screen');
-        const chatScreen = document.getElementById('chat-screen');
-        const chatContainer = document.getElementById('chat-container');
-        const messagesContainer = document.getElementById('messages-container');
-        const userInput = document.getElementById('user-input');
-        const sendButton = document.getElementById('send-button');
-        const languageButtons = document.querySelectorAll('.language-btn');
-        const languageCards = document.querySelectorAll('.language-card');
-        const propertyForm = document.getElementById('property-form');
-        const messageSuggestions = document.getElementById('message-suggestions');
+    // DOM要素
+    const languageSelectScreen = document.getElementById('language-select-screen');
+    const infoFormScreen = document.getElementById('info-form-screen');
+    const chatScreen = document.getElementById('chat-screen');
+    const chatContainer = document.getElementById('chat-container');
+    const messagesContainer = document.getElementById('messages-container');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+    const languageButtons = document.querySelectorAll('.language-btn');
+    const languageCards = document.querySelectorAll('.language-card');
+    const propertyForm = document.getElementById('property-form');
+    const messageSuggestions = document.getElementById('message-suggestions');
 
-        // フォーム要素
-        const infoFormTitle = document.getElementById('info-form-title');
-        const infoFormDescription = document.getElementById('info-form-description');
-        const propertyIdLabel = document.getElementById('property-id-label');
-        const roomNumberLabel = document.getElementById('room-number-label');
-        const issueLabel = document.getElementById('issue-label');
-        const submitInfoBtn = document.getElementById('submit-info');
-        const propertyIdInput = document.getElementById('property-id');
-        const roomNumberInput = document.getElementById('room-number');
-        const issueInput = document.getElementById('issue-description');
+    // フォーム要素
+    const infoFormTitle = document.getElementById('info-form-title');
+    const infoFormDescription = document.getElementById('info-form-description');
+    const propertyIdLabel = document.getElementById('property-id-label');
+    const roomNumberLabel = document.getElementById('room-number-label');
+    const issueLabel = document.getElementById('issue-label');
+    const submitInfoBtn = document.getElementById('submit-info');
+    const propertyIdInput = document.getElementById('property-id');
+    const roomNumberInput = document.getElementById('room-number');
+    const issueInput = document.getElementById('issue-description');
 
-        // メッセージ提案のデータ（言語ごと）
-// メッセージ提案のデータ（言語ごと）
-const suggestionsByLanguage = {
-    'en': [
-        'WiFi information',
-        'How to use the air conditioner',
-        'Nearest station',
-        'No hot water',
-        'Checkout procedure',
-        'How to use washing machine',
-        'Restaurant recommendations'
-    ],
-    'ja': [
-        'WiFi情報を教えて',
-        'エアコンの使い方',
-        '最寄り駅は',
-        'お湯が出ない',
-        'チェックアウト手続き',
-        '洗濯機の使い方',
-        'おすすめの飲食店'
-    ],
-    'ko': [
-        'WiFi 정보를 알려주세요',
-        '에어컨 사용 방법',
-        '가장 가까운 역은',
-        '뜨거운 물이 나오지 않아요',
-        '체크아웃 절차',
-        '세탁기 사용 방법',
-        '추천 음식점'
-    ],
-    'zh': [
-        'WiFi信息',
-        '空调使用方法',
-        '最近的车站',
-        '没有热水',
-        '退房手续',
-        '洗衣机使用方法',
-        '推荐餐厅'
-    ]
-};
+    // メッセージ提案のデータ（言語ごと）
+    const suggestionsByLanguage = {
+        'en': [
+            'WiFi information',
+            'How to use the air conditioner',
+            'Nearest station',
+            'No hot water',
+            'Checkout procedure',
+            'How to use washing machine',
+            'Restaurant recommendations'
+        ],
+        'ja': [
+            'WiFi情報を教えて',
+            'エアコンの使い方',
+            '最寄り駅は',
+            'お湯が出ない',
+            'チェックアウト手続き',
+            '洗濯機の使い方',
+            'おすすめの飲食店'
+        ],
+        'ko': [
+            'WiFi 정보를 알려주세요',
+            '에어컨 사용 방법',
+            '가장 가까운 역은',
+            '뜨거운 물이 나오지 않아요',
+            '체크아웃 절차',
+            '세탁기 사용 방법',
+            '추천 음식점'
+        ],
+        'zh': [
+            'WiFi信息',
+            '空调使用方法',
+            '最近的车站',
+            '没有热水',
+            '退房手续',
+            '洗衣机使用方法',
+            '推荐餐厅'
+        ]
+    };
 
-        // 提案チップを更新
-        function updateSuggestions(lang) {
-            // 既存の提案をクリア
-            messageSuggestions.innerHTML = '';
-            
-            // 選択された言語の提案を追加
-            const suggestions = suggestionsByLanguage[lang] || suggestionsByLanguage['en'];
-            
-            suggestions.forEach(suggestion => {
-                const chip = document.createElement('div');
-                chip.classList.add('suggestion-chip');
-                chip.textContent = suggestion;
-                chip.addEventListener('click', () => {
-                    userInput.value = suggestion;
-                    sendMessage();
-                });
-                messageSuggestions.appendChild(chip);
+    // 提案チップを更新
+    function updateSuggestions(lang) {
+        // 既存の提案をクリア
+        messageSuggestions.innerHTML = '';
+        
+        // 選択された言語の提案を追加
+        const suggestions = suggestionsByLanguage[lang] || suggestionsByLanguage['en'];
+        
+        suggestions.forEach(suggestion => {
+            const chip = document.createElement('div');
+            chip.classList.add('suggestion-chip');
+            chip.textContent = suggestion;
+            chip.addEventListener('click', () => {
+                userInput.value = suggestion;
+                sendMessage();
             });
-        }
-        // スタイルを追加
-const styleElement = document.createElement('style');
-styleElement.textContent = `
-    .suggestion-chip {
-        background-color: white;
-        border: 1px solid var(--primary-color);
-        color: var(--primary-color);
-        border-radius: 20px;
-        padding: 8px 15px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: var(--transition);
-        white-space: nowrap;
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            messageSuggestions.appendChild(chip);
+        });
     }
-    
-    .suggestion-chip:hover {
-        background-color: var(--primary-light);
-        transform: translateY(-2px);
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    .suggestion-selected {
-        background-color: var(--primary-color) !important;
-        color: white !important;
-        transform: scale(0.95) !important;
-    }
-    
-    .message-suggestions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 15px;
-        padding-bottom: 5px;
-    }
-    
-    @media (prefers-color-scheme: dark) {
+
+    // スタイルを追加
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
         .suggestion-chip {
-            background-color: #2d333b;
-            border-color: var(--primary-color);
+            background-color: white;
+            border: 1px solid var(--primary-color);
             color: var(--primary-color);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         
         .suggestion-chip:hover {
-            background-color: #3d434b;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
         }
-    }
-`;
+        
+        .suggestion-selected {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+            transform: scale(0.95) !important;
+        }
+        
+        .message-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .suggestion-chip {
+                background-color: #2d333b;
+                border-color: var(--primary-color);
+                color: var(--primary-color);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            }
+            
+            .suggestion-chip:hover {
+                background-color: #3d434b;
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            }
+        }
+    `;
 
-// スタイル要素をheadに追加
-document.head.appendChild(styleElement);
+    // スタイル要素をheadに追加
+    document.head.appendChild(styleElement);
 
-        // 言語選択カード初期化
-        languageCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const selectedLang = card.dataset.lang;
-                // 言語を設定して情報入力フォームを表示
-                setupInfoForm(selectedLang);
-            });
+    // 言語選択カード初期化
+    languageCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const selectedLang = card.dataset.lang;
+            // 言語を設定して情報入力フォームを表示
+            setupInfoForm(selectedLang);
         });
-
-        // 情報入力フォームのセットアップ
-        // 情報入力フォームのセットアップ
-function setupInfoForm(lang) {
-    // 言語を設定
-    currentLanguage = lang;
-    
-    // 言語ボタンを更新
-    updateLanguageButtons(lang);
-    
-    // フォームのラベルとテキストを言語に合わせて設定
-    const formTexts = {
-        'en': {
-            title: 'Enter Property Information',
-            description: 'Please provide the necessary information to receive support',
-            propertyIdLabel: 'Property ID',
-            roomNumberLabel: 'Room Number',
-            issueLabel: 'Issue Description',
-            submitBtn: 'Submit'
-        },
-        'ja': {
-            title: '物件情報を入力',
-            description: 'サポートを受けるために必要な情報を入力してください',
-            propertyIdLabel: '物件ID',
-            roomNumberLabel: '部屋番号',
-            issueLabel: 'お困りのこと',
-            submitBtn: '送信'
-        },
-        'ko': {
-            title: '물건 정보 입력',
-            description: '지원을 받기 위해 필요한 정보를 입력해주세요',
-            propertyIdLabel: '물건 ID',
-            roomNumberLabel: '방 번호',
-            issueLabel: '문제 설명',
-            submitBtn: '제출'
-        },
-        'zh': {
-            title: '输入物业信息',
-            description: '请提供必要信息以获取支持',
-            propertyIdLabel: '物业ID',
-            roomNumberLabel: '房间号',
-            issueLabel: '问题描述',
-            submitBtn: '提交'
-        }
-    };
-    
-    const texts = formTexts[lang] || formTexts['en'];
-    
-    infoFormTitle.textContent = texts.title;
-    infoFormDescription.textContent = texts.description;
-    propertyIdLabel.textContent = texts.propertyIdLabel;
-    roomNumberLabel.textContent = texts.roomNumberLabel;
-    issueLabel.textContent = texts.issueLabel;
-    submitInfoBtn.textContent = texts.submitBtn;
-    
-    // 表示切替
-    languageSelectScreen.style.display = 'none';
-    infoFormScreen.style.display = 'flex';
-}
-
-// フォーム送信処理
-propertyForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // フォームの値を取得して保存
-    propertyInfo = {
-        propertyId: propertyIdInput.value.trim(),
-        roomNumber: roomNumberInput.value.trim(),
-        issue: issueInput.value.trim()
-    };
-    
-    // チャット画面に移動
-    startChat(currentLanguage);
-    
-    // フォームをリセット
-    propertyForm.reset();
-});
-
-// チャット開始処理
-function startChat(lang) {
-    // 言語を設定
-    currentLanguage = lang;
-    
-    // 言語ボタンを更新
-    updateLanguageButtons(lang);
-    
-    // 言語ごとのプレースホルダー
-    const placeholders = {
-        'en': 'Type a message...',
-        'ko': '메시지를 입력하세요...',
-        'ja': 'メッセージを入力...',
-        'zh': '输入消息...'
-    };
-    
-    userInput.placeholder = placeholders[lang] || placeholders['en'];
-    
-    // メッセージ提案を更新
-    updateSuggestions(lang);
-    
-    // 表示切替
-    infoFormScreen.style.display = 'none';
-    chatScreen.style.display = 'flex';
-    
-    // 物件情報からプロンプトを生成
-    const promptTemplates = {
-        'en': `This is a question about property ${propertyInfo.propertyId}, room ${propertyInfo.roomNumber}:\n\n${propertyInfo.issue}`,
-        'ja': `${propertyInfo.propertyId}の${propertyInfo.roomNumber}についての質問です。\n\n${propertyInfo.issue}`,
-        'ko': `${propertyInfo.propertyId}의 ${propertyInfo.roomNumber}에 대한 질문입니다.\n\n${propertyInfo.issue}`,
-        'zh': `这是关于${propertyInfo.propertyId}的${propertyInfo.roomNumber}的问题。\n\n${propertyInfo.issue}`
-    };
-    
-    const prompt = promptTemplates[lang] || promptTemplates['en'];
-    
-    // ウェルカムメッセージ
-    const welcomeMessages = {
-        'en': 'Welcome to GOTO AI Support. We are processing your inquiry...',
-        'ko': 'GOTO AI 지원에 오신 것을 환영합니다. 문의를 처리 중입니다...',
-        'ja': 'GOTO AIサポートへようこそ。お問い合わせを処理しています...',
-        'zh': '欢迎使用GOTO AI支持。我们正在处理您的查询...'
-    };
-    
-    // ウェルカムメッセージを表示
-    addMessage(welcomeMessages[lang] || welcomeMessages['en'], 'bot');
-    
-    // 自動でプロンプトを送信
-    sendAutoMessage(prompt);
-    
-    // 入力フィールドにフォーカス
-    userInput.focus();
-}
-
-// 言語ボタンを更新
-function updateLanguageButtons(lang) {
-    languageButtons.forEach(btn => {
-        if (btn.dataset.lang === lang) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
     });
-}
 
-// 言語ボタンのイベントリスナーを設定
-languageButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        const selectedLang = btn.dataset.lang;
-        currentLanguage = selectedLang;
-        updateLanguageButtons(selectedLang);
-        updateSuggestions(selectedLang);
+    // 情報入力フォームのセットアップ
+    function setupInfoForm(lang) {
+        // 言語を設定
+        currentLanguage = lang;
+        
+        // 言語ボタンを更新
+        updateLanguageButtons(lang);
+        
+        // フォームのラベルとテキストを言語に合わせて設定
+        const formTexts = {
+            'en': {
+                title: 'Enter Property Information',
+                description: 'Please provide the necessary information to receive support',
+                propertyIdLabel: 'Property ID',
+                roomNumberLabel: 'Room Number',
+                issueLabel: 'Issue Description',
+                submitBtn: 'Submit'
+            },
+            'ja': {
+                title: '物件情報を入力',
+                description: 'サポートを受けるために必要な情報を入力してください',
+                propertyIdLabel: '物件ID',
+                roomNumberLabel: '部屋番号',
+                issueLabel: 'お困りのこと',
+                submitBtn: '送信'
+            },
+            'ko': {
+                title: '물건 정보 입력',
+                description: '지원을 받기 위해 필요한 정보를 입력해주세요',
+                propertyIdLabel: '물건 ID',
+                roomNumberLabel: '방 번호',
+                issueLabel: '문제 설명',
+                submitBtn: '제출'
+            },
+            'zh': {
+                title: '输入物业信息',
+                description: '请提供必要信息以获取支持',
+                propertyIdLabel: '物业ID',
+                roomNumberLabel: '房间号',
+                issueLabel: '问题描述',
+                submitBtn: '提交'
+            }
+        };
+        
+        const texts = formTexts[lang] || formTexts['en'];
+        
+        infoFormTitle.textContent = texts.title;
+        infoFormDescription.textContent = texts.description;
+        propertyIdLabel.textContent = texts.propertyIdLabel;
+        roomNumberLabel.textContent = texts.roomNumberLabel;
+        issueLabel.textContent = texts.issueLabel;
+        submitInfoBtn.textContent = texts.submitBtn;
+        
+        // 表示切替
+        languageSelectScreen.style.display = 'none';
+        infoFormScreen.style.display = 'flex';
+    }
+
+    // フォーム送信処理
+    propertyForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // フォームの値を取得して保存
+        propertyInfo = {
+            propertyId: propertyIdInput.value.trim(),
+            roomNumber: roomNumberInput.value.trim(),
+            issue: issueInput.value.trim()
+        };
+        
+        // チャット画面に移動
+        startChat(currentLanguage);
+        
+        // フォームをリセット
+        propertyForm.reset();
+    });
+
+    // チャット開始処理
+    function startChat(lang) {
+        // 言語を設定
+        currentLanguage = lang;
+        
+        // 言語ボタンを更新
+        updateLanguageButtons(lang);
         
         // 言語ごとのプレースホルダー
         const placeholders = {
@@ -970,199 +905,264 @@ languageButtons.forEach(btn => {
             'zh': '输入消息...'
         };
         
-        userInput.placeholder = placeholders[selectedLang] || placeholders['en'];
-    });
-});
-
-// メッセージを追加する関数
-function addMessage(text, sender) {
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message');
-    messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
-    
-    const avatar = document.createElement('div');
-    avatar.classList.add('message-avatar');
-    avatar.classList.add(sender === 'user' ? 'user-avatar' : 'bot-avatar');
-    avatar.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
-    
-    const content = document.createElement('div');
-    content.classList.add('message-content');
-    content.textContent = text;
-    
-    if (sender === 'user') {
-        messageDiv.appendChild(content);
-        messageDiv.appendChild(avatar);
-    } else {
-        messageDiv.appendChild(avatar);
-        messageDiv.appendChild(content);
-    }
-    
-    messagesContainer.appendChild(messageDiv);
-    
-    // 自動スクロール
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-// ユーザー入力を送信
-function sendMessage() {
-    const message = userInput.value.trim();
-    if (message === '') return;
-    
-    // メッセージを表示
-    addMessage(message, 'user');
-    
-    // 入力欄をクリア
-    userInput.value = '';
-    
-    // タイピングインジケータ表示
-    showTypingIndicator();
-    
-    // 応答処理（ここでは簡易的に実装）
-    setTimeout(() => {
-        removeTypingIndicator();
+        userInput.placeholder = placeholders[lang] || placeholders['en'];
         
-        // サンプル応答
-        const responses = {
-            'en': {
-                'WiFi information': 'The WiFi SSID is "GOTO-Guest" and the password is "welcome2023". You can find this information on the card in your room as well.',
-                'How to use the air conditioner': 'The remote control for the air conditioner is on the wall. Press the power button and use the up/down arrows to set your desired temperature.',
-                'Nearest station': 'The nearest station is Shinjuku Station, which is about a 7-minute walk from the property.',
-                'No hot water': 'I\'m sorry to hear that. Please check if the hot water switch in the bathroom is turned on. If the problem persists, we will send maintenance staff.',
-                'Checkout procedure': 'Checkout time is 11:00 AM. Please leave the key on the table and close the door when you leave.',
-                'How to use washing machine': 'The washing machine is located on the 1st floor. Put in your laundry, add detergent, select a program using the dial, and press the start button.',
-                'Restaurant recommendations': 'There are several great restaurants nearby. "Sushi Masa" for sushi, "Ramen Ichiban" for ramen, and "Sakura" for traditional Japanese cuisine are all within a 5-minute walk.'
-            },
-            'ja': {
-                'WiFi情報を教えて': 'WiFiのSSIDは「GOTO-Guest」でパスワードは「welcome2023」です。この情報はお部屋のカードにも記載されています。',
-                'エアコンの使い方': 'エアコンのリモコンは壁に取り付けられています。電源ボタンを押し、上下の矢印で希望の温度を設定してください。',
-                '最寄り駅は': '最寄り駅は新宿駅で、物件から徒歩約7分です。',
-                'お湯が出ない': '申し訳ありません。浴室の給湯スイッチがオンになっているか確認してください。問題が解決しない場合は、メンテナンススタッフを派遣します。',
-                'チェックアウト手続き': 'チェックアウト時間は午前11時です。鍵はテーブルに置いて、出る際にドアを閉めてください。',
-                '洗濯機の使い方': '洗濯機は1階にあります。洗濯物を入れ、洗剤を追加し、ダイヤルでプログラムを選択し、スタートボタンを押してください。',
-                'おすすめの飲食店': '近くには素晴らしいレストランがいくつかあります。寿司なら「寿司政」、ラーメンなら「ラーメン一番」、日本料理なら「さくら」がすべて徒歩5分以内にあります。'
-            },
-            'ko': {
-                'WiFi 정보를 알려주세요': 'WiFi SSID는 "GOTO-Guest"이고 비밀번호는 "welcome2023"입니다. 이 정보는 객실의 카드에서도 찾을 수 있습니다.',
-                '에어컨 사용 방법': '에어컨 리모컨은 벽에 있습니다. 전원 버튼을 누르고 위/아래 화살표를 사용하여 원하는 온도를 설정하세요.',
-                '가장 가까운 역은': '가장 가까운 역은 신주쿠역으로, 숙소에서 도보로 약 7분 거리에 있습니다.',
-                '뜨거운 물이 나오지 않아요': '불편을 드려 죄송합니다. 욕실의 온수 스위치가 켜져 있는지 확인해 주세요. 문제가 지속되면 유지보수 직원을 보내드리겠습니다.',
-                '체크아웃 절차': '체크아웃 시간은 오전 11시입니다. 떠날 때 테이블에 열쇠를 두고 문을 닫아주세요.',
-                '세탁기 사용 방법': '세탁기는 1층에 있습니다. 세탁물을 넣고, 세제를 추가하고, 다이얼로 프로그램을 선택한 다음 시작 버튼을 누르세요.',
-                '추천 음식점': '근처에 몇 개의 훌륭한 레스토랑이 있습니다. 스시는 "스시 마사", 라멘은 "라멘 이치반", 전통 일식은 "사쿠라"가 모두 도보 5분 이내에 있습니다.'
-            },
-            'zh': {
-                'WiFi信息': 'WiFi SSID是"GOTO-Guest"，密码是"welcome2023"。您也可以在房间内的卡片上找到此信息。',
-                '空调使用方法': '空调遥控器在墙上。按下电源按钮，使用上/下箭头设置您想要的温度。',
-                '最近的车站': '最近的车站是新宿站，距离物业步行约7分钟。',
-                '没有热水': '很抱歉听到这个问题。请检查浴室中的热水开关是否已打开。如果问题仍然存在，我们将派维修人员前来。',
-                '退房手续': '退房时间是上午11点。离开时请将钥匙放在桌子上并关上门。',
-                '洗衣机使用方法': '洗衣机位于一楼。放入您的衣物，添加洗涤剂，使用转盘选择程序，然后按下开始按钮。',
-                '推荐餐厅': '附近有几家很棒的餐厅。寿司有"寿司雅"，拉面有"拉面一番"，传统日本料理有"樱花"，都在步行5分钟内。'
-            }
+        // メッセージ提案を更新
+        updateSuggestions(lang);
+        
+        // 表示切替
+        infoFormScreen.style.display = 'none';
+        chatScreen.style.display = 'flex';
+        
+        // 物件情報からプロンプトを生成
+        const promptTemplates = {
+            'en': `This is a question about property ${propertyInfo.propertyId}, room ${propertyInfo.roomNumber}:\n\n${propertyInfo.issue}`,
+            'ja': `${propertyInfo.propertyId}の${propertyInfo.roomNumber}についての質問です。\n\n${propertyInfo.issue}`,
+            'ko': `${propertyInfo.propertyId}의 ${propertyInfo.roomNumber}에 대한 질문입니다.\n\n${propertyInfo.issue}`,
+            'zh': `这是关于${propertyInfo.propertyId}的${propertyInfo.roomNumber}的问题。\n\n${propertyInfo.issue}`
         };
         
-        // 一致する応答があれば使用、なければ一般的な応答
-        const langResponses = responses[currentLanguage] || responses['en'];
+        const prompt = promptTemplates[lang] || promptTemplates['en'];
         
-        // 完全一致するか確認
-        if (langResponses[message]) {
-            addMessage(langResponses[message], 'bot');
+        // ウェルカムメッセージ
+        const welcomeMessages = {
+            'en': 'Welcome to GOTO AI Support. We are processing your inquiry...',
+            'ko': 'GOTO AI 지원에 오신 것을 환영합니다. 문의를 처리 중입니다...',
+            'ja': 'GOTO AIサポートへようこそ。お問い合わせを処理しています...',
+            'zh': '欢迎使用GOTO AI支持。我们正在处理您的查询...'
+        };
+        
+        // ウェルカムメッセージを表示
+        addMessage(welcomeMessages[lang] || welcomeMessages['en'], 'bot');
+        
+        // 自動でプロンプトを送信
+        sendAutoMessage(prompt);
+        
+        // 入力フィールドにフォーカス
+        userInput.focus();
+    }
+
+    // 言語ボタンを更新
+    function updateLanguageButtons(lang) {
+        languageButtons.forEach(btn => {
+            if (btn.dataset.lang === lang) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    // 言語ボタンのイベントリスナーを設定
+    languageButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const selectedLang = btn.dataset.lang;
+            currentLanguage = selectedLang;
+            updateLanguageButtons(selectedLang);
+            updateSuggestions(selectedLang);
+            
+            // 言語ごとのプレースホルダー
+            const placeholders = {
+                'en': 'Type a message...',
+                'ko': '메시지를 입력하세요...',
+                'ja': 'メッセージを入力...',
+                'zh': '输入消息...'
+            };
+            
+            userInput.placeholder = placeholders[selectedLang] || placeholders['en'];
+        });
+    });
+
+    // メッセージを追加する関数
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+        messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+        
+        const avatar = document.createElement('div');
+        avatar.classList.add('message-avatar');
+        avatar.classList.add(sender === 'user' ? 'user-avatar' : 'bot-avatar');
+        avatar.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+        
+        const content = document.createElement('div');
+        content.classList.add('message-content');
+        content.textContent = text;
+        
+        if (sender === 'user') {
+            messageDiv.appendChild(content);
+            messageDiv.appendChild(avatar);
         } else {
-            // キーワードマッチング（部分一致）
-            let matched = false;
-            for (const [key, response] of Object.entries(langResponses)) {
-                if (message.toLowerCase().includes(key.toLowerCase())) {
-                    addMessage(response, 'bot');
-                    matched = true;
-                    break;
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(content);
+        }
+        
+        messagesContainer.appendChild(messageDiv);
+        
+        // 自動スクロール
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // ユーザー入力を送信
+    function sendMessage() {
+        const message = userInput.value.trim();
+        if (message === '') return;
+        
+        // メッセージを表示
+        addMessage(message, 'user');
+        
+        // 入力欄をクリア
+        userInput.value = '';
+        
+        // タイピングインジケータ表示
+        showTypingIndicator();
+        
+        // 応答処理（ここでは簡易的に実装）
+        setTimeout(() => {
+            removeTypingIndicator();
+            
+            // サンプル応答
+            const responses = {
+                'en': {
+                    'WiFi information': 'The WiFi SSID is "GOTO-Guest" and the password is "welcome2023". You can find this information on the card in your room as well.',
+                    'How to use the air conditioner': 'The remote control for the air conditioner is on the wall. Press the power button and use the up/down arrows to set your desired temperature.',
+                    'Nearest station': 'The nearest station is Shinjuku Station, which is about a 7-minute walk from the property.',
+                    'No hot water': 'I\'m sorry to hear that. Please check if the hot water switch in the bathroom is turned on. If the problem persists, we will send maintenance staff.',
+                    'Checkout procedure': 'Checkout time is 11:00 AM. Please leave the key on the table and close the door when you leave.',
+                    'How to use washing machine': 'The washing machine is located on the 1st floor. Put in your laundry, add detergent, select a program using the dial, and press the start button.',
+                    'Restaurant recommendations': 'There are several great restaurants nearby. "Sushi Masa" for sushi, "Ramen Ichiban" for ramen, and "Sakura" for traditional Japanese cuisine are all within a 5-minute walk.'
+                },
+                'ja': {
+                    'WiFi情報を教えて': 'WiFiのSSIDは「GOTO-Guest」でパスワードは「welcome2023」です。この情報はお部屋のカードにも記載されています。',
+                    'エアコンの使い方': 'エアコンのリモコンは壁に取り付けられています。電源ボタンを押し、上下の矢印で希望の温度を設定してください。',
+                    '最寄り駅は': '最寄り駅は新宿駅で、物件から徒歩約7分です。',
+                    'お湯が出ない': '申し訳ありません。浴室の給湯スイッチがオンになっているか確認してください。問題が解決しない場合は、メンテナンススタッフを派遣します。',
+                    'チェックアウト手続き': 'チェックアウト時間は午前11時です。鍵はテーブルに置いて、出る際にドアを閉めてください。',
+                    '洗濯機の使い方': '洗濯機は1階にあります。洗濯物を入れ、洗剤を追加し、ダイヤルでプログラムを選択し、スタートボタンを押してください。',
+                    'おすすめの飲食店': '近くには素晴らしいレストランがいくつかあります。寿司なら「寿司政」、ラーメンなら「ラーメン一番」、日本料理なら「さくら」がすべて徒歩5分以内にあります。'
+                },
+                'ko': {
+                    'WiFi 정보를 알려주세요': 'WiFi SSID는 "GOTO-Guest"이고 비밀번호는 "welcome2023"입니다. 이 정보는 객실의 카드에서도 찾을 수 있습니다.',
+                    '에어컨 사용 방법': '에어컨 리모컨은 벽에 있습니다. 전원 버튼을 누르고 위/아래 화살표를 사용하여 원하는 온도를 설정하세요.',
+                    '가장 가까운 역은': '가장 가까운 역은 신주쿠역으로, 숙소에서 도보로 약 7분 거리에 있습니다.',
+                    '뜨거운 물이 나오지 않아요': '불편을 드려 죄송합니다. 욕실의 온수 스위치가 켜져 있는지 확인해 주세요. 문제가 지속되면 유지보수 직원을 보내드리겠습니다.',
+                    '체크아웃 절차': '체크아웃 시간은 오전 11시입니다. 떠날 때 테이블에 열쇠를 두고 문을 닫아주세요.',
+                    '세탁기 사용 방법': '세탁기는 1층에 있습니다. 세탁물을 넣고, 세제를 추가하고, 다이얼로 프로그램을 선택한 다음 시작 버튼을 누르세요.',
+                    '추천 음식점': '근처에 몇 개의 훌륭한 레스토랑이 있습니다. 스시는 "스시 마사", 라멘은 "라멘 이치반", 전통 일식은 "사쿠라"가 모두 도보 5분 이내에 있습니다.'
+                },
+                'zh': {
+                    'WiFi信息': 'WiFi SSID是"GOTO-Guest"，密码是"welcome2023"。您也可以在房间内的卡片上找到此信息。',
+                    '空调使用方法': '空调遥控器在墙上。按下电源按钮，使用上/下箭头设置您想要的温度。',
+                    '最近的车站': '最近的车站是新宿站，距离物业步行约7分钟。',
+                    '没有热水': '很抱歉听到这个问题。请检查浴室中的热水开关是否已打开。如果问题仍然存在，我们将派维修人员前来。',
+                    '退房手续': '退房时间是上午11点。离开时请将钥匙放在桌子上并关上门。',
+                    '洗衣机使用方法': '洗衣机位于一楼。放入您的衣物，添加洗涤剂，使用转盘选择程序，然后按下开始按钮。',
+                    '推荐餐厅': '附近有几家很棒的餐厅。寿司有"寿司雅"，拉面有"拉面一番"，传统日本料理有"樱花"，都在步行5分钟内。'
+                }
+            };
+            
+            // 一致する応答があれば使用、なければ一般的な応答
+            const langResponses = responses[currentLanguage] || responses['en'];
+            
+            // 完全一致するか確認
+            if (langResponses[message]) {
+                addMessage(langResponses[message], 'bot');
+            } else {
+                // キーワードマッチング（部分一致）
+                let matched = false;
+                for (const [key, response] of Object.entries(langResponses)) {
+                    if (message.toLowerCase().includes(key.toLowerCase())) {
+                        addMessage(response, 'bot');
+                        matched = true;
+                        break;
+                    }
+                }
+                
+                // 一致するものがなければデフォルトメッセージ
+                if (!matched) {
+                    const defaultMessages = {
+                        'en': 'Thank you for your message. I\'ll help you with that. Could you please provide more details?',
+                        'ja': 'お問い合わせありがとうございます。お手伝いいたします。詳細をお知らせいただけますか？',
+                        'ko': '메시지 감사합니다. 도와드리겠습니다. 더 자세한 정보를 제공해 주시겠어요?',
+                        'zh': '感谢您的留言。我会帮助您解决这个问题。您能提供更多详细信息吗？'
+                    };
+                    
+                    addMessage(defaultMessages[currentLanguage] || defaultMessages['en'], 'bot');
                 }
             }
             
-            // 一致するものがなければデフォルトメッセージ
-            if (!matched) {
-                const defaultMessages = {
-                    'en': 'Thank you for your message. I\'ll help you with that. Could you please provide more details?',
-                    'ja': 'お問い合わせありがとうございます。お手伝いいたします。詳細をお知らせいただけますか？',
-                    'ko': '메시지 감사합니다. 도와드리겠습니다. 더 자세한 정보를 제공해 주시겠어요?',
-                    'zh': '感谢您的留言。我会帮助您解决这个问题。您能提供更多详细信息吗？'
-                };
-                
-                addMessage(defaultMessages[currentLanguage] || defaultMessages['en'], 'bot');
-            }
+            // 新しい提案を表示（オプション）
+            // updateSuggestions(currentLanguage);
+        }, 1500);
+    }
+
+    // 自動メッセージ送信（初期プロンプト用）
+    function sendAutoMessage(message) {
+        // タイピングインジケータ表示
+        showTypingIndicator();
+        
+        // 応答処理
+        setTimeout(() => {
+            removeTypingIndicator();
+            
+            // 言語に応じた応答
+            const welcomeResponses = {
+                'en': `Thank you for providing information about property ${propertyInfo.propertyId}, room ${propertyInfo.roomNumber}. How can I assist you with your concern today?`,
+                'ja': `${propertyInfo.propertyId}の${propertyInfo.roomNumber}に関する情報をありがとうございます。本日はどのようにお手伝いできますか？`,
+                'ko': `${propertyInfo.propertyId}의 ${propertyInfo.roomNumber}에 대한 정보를 제공해 주셔서 감사합니다. 오늘 어떻게 도와드릴까요?`,
+                'zh': `感谢您提供关于${propertyInfo.propertyId}的${propertyInfo.roomNumber}的信息。今天我能如何帮助您解决问题？`
+            };
+            
+            addMessage(welcomeResponses[currentLanguage] || welcomeResponses['en'], 'bot');
+        }, 2000);
+    }
+
+    // タイピングインジケータを表示
+    function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.classList.add('message', 'bot-message');
+        typingDiv.id = 'typing-indicator';
+        
+        const avatar = document.createElement('div');
+        avatar.classList.add('message-avatar', 'bot-avatar');
+        avatar.innerHTML = '<i class="fas fa-robot"></i>';
+        
+        const typingIndicator = document.createElement('div');
+        typingIndicator.classList.add('typing-indicator');
+        typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+        
+        typingDiv.appendChild(avatar);
+        typingDiv.appendChild(typingIndicator);
+        
+        messagesContainer.appendChild(typingDiv);
+        
+        // 自動スクロール
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // タイピングインジケータを削除
+    function removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
         }
-        
-        // 新しい提案を表示（オプション）
-        // updateSuggestions(currentLanguage);
-    }, 1500);
-}
-
-// 自動メッセージ送信（初期プロンプト用）
-function sendAutoMessage(message) {
-    // タイピングインジケータ表示
-    showTypingIndicator();
-    
-    // 応答処理
-    setTimeout(() => {
-        removeTypingIndicator();
-        
-        // 言語に応じた応答
-        const welcomeResponses = {
-            'en': `Thank you for providing information about property ${propertyInfo.propertyId}, room ${propertyInfo.roomNumber}. How can I assist you with your concern today?`,
-            'ja': `${propertyInfo.propertyId}の${propertyInfo.roomNumber}に関する情報をありがとうございます。本日はどのようにお手伝いできますか？`,
-            'ko': `${propertyInfo.propertyId}의 ${propertyInfo.roomNumber}에 대한 정보를 제공해 주셔서 감사합니다. 오늘 어떻게 도와드릴까요?`,
-            'zh': `感谢您提供关于${propertyInfo.propertyId}的${propertyInfo.roomNumber}的信息。今天我能如何帮助您解决问题？`
-        };
-        
-        addMessage(welcomeResponses[currentLanguage] || welcomeResponses['en'], 'bot');
-    }, 2000);
-}
-
-// タイピングインジケータを表示
-function showTypingIndicator() {
-    const typingDiv = document.createElement('div');
-    typingDiv.classList.add('message', 'bot-message');
-    typingDiv.id = 'typing-indicator';
-    
-    const avatar = document.createElement('div');
-    avatar.classList.add('message-avatar', 'bot-avatar');
-    avatar.innerHTML = '<i class="fas fa-robot"></i>';
-    
-    const typingIndicator = document.createElement('div');
-    typingIndicator.classList.add('typing-indicator');
-    typingIndicator.innerHTML = '<span></span><span></span><span></span>';
-    
-    typingDiv.appendChild(avatar);
-    typingDiv.appendChild(typingIndicator);
-    
-    messagesContainer.appendChild(typingDiv);
-    
-    // 自動スクロール
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-// タイピングインジケータを削除
-function removeTypingIndicator() {
-    const typingIndicator = document.getElementById('typing-indicator');
-    if (typingIndicator) {
-        typingIndicator.remove();
     }
-}
 
-// 送信ボタンのイベントリスナー
-sendButton.addEventListener('click', sendMessage);
+    // 送信ボタンのイベントリスナー
+    sendButton.addEventListener('click', sendMessage);
 
-// エンターキーの処理
-userInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        sendMessage();
-    }
-});
+    // エンターキーの処理
+    userInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
 
-// 初期表示は言語選択画面
-languageSelectScreen.style.display = 'flex';
-infoFormScreen.style.display = 'none';
-chatScreen.style.display = 'none';
+    // 初期表示は言語選択画面
+    languageSelectScreen.style.display = 'flex';
+    infoFormScreen.style.display = 'none';
+    chatScreen.style.display = 'none';
+</script>
             
             // 物件情報からプロンプトを生成
             const promptTemplates = {
