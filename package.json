@@ -1,0 +1,19 @@
+{
+  "name": "goto-ai-support",
+  "version": "1.0.0",
+  "description": "GOTO AI Support Chat using OpenAI Assistants API",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "dependencies": {
+    "openai": "^4.20.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.13.0"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}

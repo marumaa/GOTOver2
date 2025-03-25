@@ -1,0 +1,9 @@
+[build]
+  publish = "."  # ルートディレクトリの内容を公開
+  functions = "./functions"  # functionsディレクトリを指定
+
+# API パスのリダイレクト設定
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
